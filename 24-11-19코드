@@ -1,0 +1,86 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 카테고리별 알콜 음료 재료 목록
+whiskey = ['Blended Scotch', 'Blended whiskey', 'Crown Royal', 'Jack Daniels', 'Jim Beam', 'Rye whiskey', 'Scotch', 'Wild Turkey', 'Bourbon']
+rum = ['151 proof rum', 'Bacardi Limon', 'Dark rum', 'Light rum', 'Malibu rum', 'Spiced rum', 'White Rum']
+vodka = ['Absolut Citron', 'Absolut Kurant', 'Absolut Vodka', 'Vodka']
+gin = ['Gin']
+tequila = ['Tequila']
+wine = ['Champagne', 'Port', 'Red wine', 'Rose', 'Prosecco', 'Sherry']
+others = ['Amaretto', 'Apple brandy', 'Applejack', 'Apricot brandy', 'Blackberry brandy', 'Campari', 'Cherry brandy', 'Cherry Heering', 
+          'Cognac', 'Dubonnet Rouge', 'Everclear', 'Firewater', 'Frangelico', 'Godiva liqueur', 'Grand Marnier', 'Green Chartreuse', 
+          'Green Creme de Menthe', 'Grenadine', 'Irish whiskey', 'Jägermeister', 'Kahlua', 'Kiwi liqueur', 'Lager', 'Mezcal', 
+          'Midori melon liqueur', 'Ricard', 'Sambuca', 'Southern Comfort', 'Sweet Vermouth', 'Triple sec', 'Vermouth', 'Zima']
+
+# 재료 카테고리
+alcohol_categories = {
+    'Whiskey': whiskey,
+    'Rum': rum,
+    'Vodka': vodka,
+    'Gin': gin,
+    'Tequila': tequila,
+    'Wine': wine,
+    'Others': others
+}
+
+# 알콜 음료와 논 알콜 음료 분류
+file_path = 'C:/Users/khskh/Downloads/archive/data (1).csv'
+file_path1 = 'C:/Users/khskh/Downloads/archive (1)/cocktail_data.csv'
+
+data = pd.read_csv(file_path, encoding='ISO-8859-1')
+data1 = pd.read_csv(file_path1, encoding='ISO-8859-1')
+
+name1 = data['strDrink']
+name2 = data1['drink']
+strAlcoholic = data1['alcoholic']
+ingredients = data1['ingredients']
+
+# 카테고리별 음료 카운트
+category_count_alcoholic = {category: 0 for category in alcohol_categories}
+category_count_non_alcoholic = {category: 0 for category in alcohol_categories}
+
+# 알콜 음료 분류
+for drink_name in name1:
+    if drink_name in name2.values:
+        ingredient_list = data1[data1['drink'] == drink_name]['ingredients'].values
+        if ingredient_list:
+            ingredient_str = ingredient_list[0]
+            alcoholic_status = strAlcoholic[data1['drink'] == drink_name].values[0]
+            
+            if alcoholic_status == 'Alcoholic':
+                # 카테고리별로 알콜 음료 분류
+                for category, ingredients_list in alcohol_categories.items():
+                    if any(ingredient in ingredient_str for ingredient in ingredients_list):
+                        category_count_alcoholic[category] += 1
+            elif alcoholic_status == 'Non alcoholic':
+                # 카테고리별로 논 알콜 음료 분류
+                for category, ingredients_list in alcohol_categories.items():
+                    if any(ingredient in ingredient_str for ingredient in ingredients_list):
+                        category_count_non_alcoholic[category] += 1
+
+# 결과 출력
+print("Alcoholic Drinks by Category:", category_count_alcoholic)
+print("Non-Alcoholic Drinks by Category:", category_count_non_alcoholic)
+
+# 시각화
+categories = list(alcohol_categories.keys())
+alcoholic_counts = list(category_count_alcoholic.values())
+non_alcoholic_counts = list(category_count_non_alcoholic.values())
+
+x = range(len(categories))
+
+# 바 차트 그리기
+fig, ax = plt.subplots(figsize=(10, 6))
+
+bar_width = 0.35
+ax.bar(x, alcoholic_counts, width=bar_width, label='Alcoholic', color='blue')
+ax.bar([i + bar_width for i in x], non_alcoholic_counts, width=bar_width, label='Non-Alcoholic', color='green')
+ax.set_xlabel('Alcohol Category')
+ax.set_ylabel('Number of Drinks')
+ax.set_title('Alcoholic vs Non-Alcoholic Drinks by Category')
+ax.set_xticks([i + bar_width / 2 for i in x])
+ax.set_xticklabels(categories, rotation=45, ha='right')
+ax.legend()
+
+plt.show()
