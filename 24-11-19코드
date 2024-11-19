@@ -1,0 +1,195 @@
+import pandas as pd
+import json
+import matplotlib.pyplot as plt
+
+# 카테고리별 알콜 음료 재료 목록
+whiskey = ['Blended Scotch', 'Blended whiskey', 'Crown Royal', 'Jack Daniels', 'Jim Beam', 'Rye whiskey', 'Scotch', 'Wild Turkey', 'Bourbon']
+rum = ['151 proof rum', 'Bacardi Limon', 'Dark rum', 'Light rum', 'Malibu rum', 'Spiced rum', 'White Rum']
+vodka = ['Absolut Citron', 'Absolut Kurant', 'Absolut Vodka', 'Vodka']
+gin = ['Gin']
+tequila = ['Tequila']
+wine = ['Champagne', 'Port', 'Red wine', 'Rose', 'Prosecco', 'Sherry']
+others = ['Amaretto', 'Apple brandy', 'Applejack', 'Apricot brandy', 'Blackberry brandy', 'Campari', 'Cherry brandy', 'Cherry Heering', 
+          'Cognac', 'Dubonnet Rouge', 'Everclear', 'Firewater', 'Frangelico', 'Godiva liqueur', 'Grand Marnier', 'Green Chartreuse', 
+          'Green Creme de Menthe', 'Grenadine', 'Irish whiskey', 'Jägermeister', 'Kahlua', 'Kiwi liqueur', 'Lager', 'Mezcal', 
+          'Midori melon liqueur', 'Ricard', 'Sambuca', 'Southern Comfort', 'Sweet Vermouth', 'Triple sec', 'Vermouth', 'Zima']
+
+# 재료 카테고리
+alcohol_categories = {
+    'Whiskey': whiskey,
+    'Rum': rum,
+    'Vodka': vodka,
+    'Gin': gin,
+    'Tequila': tequila,
+    'Wine': wine,
+    'Others': others
+}
+
+# 알콜 음료와 논 알콜 음료 분류
+file_path = 'C:/Users/khskh/Downloads/archive/data (1).csv'
+file_path1 = 'C:/Users/khskh/Downloads/archive (1)/cocktail_data.csv'
+
+data = pd.read_csv(file_path, encoding='ISO-8859-1')
+data1 = pd.read_csv(file_path1, encoding='ISO-8859-1')
+
+name1 = data['strDrink']
+name2 = data1['drink']
+strAlcoholic = data1['alcoholic']
+ingredients = data1['ingredients']
+
+# 카테고리별 음료 카운트
+category_count_alcoholic = {category: 0 for category in alcohol_categories}
+category_count_non_alcoholic = {category: 0 for category in alcohol_categories}
+
+# 알콜 음료 분류
+for drink_name in name1:
+    if drink_name in name2.values:
+        ingredient_list = data1[data1['drink'] == drink_name]['ingredients'].values
+        if ingredient_list:
+            ingredient_str = ingredient_list[0]
+            alcoholic_status = strAlcoholic[data1['drink'] == drink_name].values[0]
+            
+            if alcoholic_status == 'Alcoholic':
+                # 카테고리별로 알콜 음료 분류
+                for category, ingredients_list in alcohol_categories.items():
+                    if any(ingredient in ingredient_str for ingredient in ingredients_list):
+                        category_count_alcoholic[category] += 1
+            elif alcoholic_status == 'Non alcoholic':
+                # 카테고리별로 논 알콜 음료 분류
+                for category, ingredients_list in alcohol_categories.items():
+                    if any(ingredient in ingredient_str for ingredient in ingredients_list):
+                        category_count_non_alcoholic[category] += 1
+
+
+# JSON 파일 경로
+file_path = 'a.json'
+
+# JSON 파일을 읽어오기
+with open(file_path, 'r', encoding='utf-8') as file:
+    data = json.load(file)
+
+# 리스트의 각 항목에서 필요한 키들의 값 추출
+names = []
+salty_values = []
+savory_values = []
+sour_values = []
+bitter_values = []
+sweet_values = []
+spicy_values = []
+
+for item in data:
+    name = item.get('Name')
+    salty = item.get('Salty')
+    savory = item.get('Savory')
+    sour = item.get('Sour')
+    bitter = item.get('Bitter')
+    sweet = item.get('Sweet')
+    spicy = item.get('Spicy')
+    
+    # 값 저장
+    names.append(name)
+    salty_values.append(salty)
+    savory_values.append(savory)
+    sour_values.append(sour)
+    bitter_values.append(bitter)
+    sweet_values.append(sweet)
+    spicy_values.append(spicy)
+
+# 20개씩 나누어서 두 그룹으로 나누기
+group_size = 20
+group_1_start = 0
+group_1_end = group_size
+group_2_start = group_size
+group_2_end = len(names)
+
+# 첫 번째 그룹
+names_group_1 = names[group_1_start:group_1_end]
+salty_values_group_1 = salty_values[group_1_start:group_1_end]
+savory_values_group_1 = savory_values[group_1_start:group_1_end]
+sour_values_group_1 = sour_values[group_1_start:group_1_end]
+bitter_values_group_1 = bitter_values[group_1_start:group_1_end]
+sweet_values_group_1 = sweet_values[group_1_start:group_1_end]
+spicy_values_group_1 = spicy_values[group_1_start:group_1_end]
+
+# 두 번째 그룹
+names_group_2 = names[group_2_start:group_2_end]
+salty_values_group_2 = salty_values[group_2_start:group_2_end]
+savory_values_group_2 = savory_values[group_2_start:group_2_end]
+sour_values_group_2 = sour_values[group_2_start:group_2_end]
+bitter_values_group_2 = bitter_values[group_2_start:group_2_end]
+sweet_values_group_2 = sweet_values[group_2_start:group_2_end]
+spicy_values_group_2 = spicy_values[group_2_start:group_2_end]
+
+# 그래프 생성 (두 그룹을 따로 시각화)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 12))
+
+# 첫 번째 그룹 시각화
+bar_width = 0.15
+index_group_1 = range(len(names_group_1))
+
+ax1.bar(index_group_1, salty_values_group_1, bar_width, label='Salty', alpha=0.7)
+ax1.bar([i + bar_width for i in index_group_1], savory_values_group_1, bar_width, label='Savory', alpha=0.7)
+ax1.bar([i + bar_width * 2 for i in index_group_1], sour_values_group_1, bar_width, label='Sour', alpha=0.7)
+ax1.bar([i + bar_width * 3 for i in index_group_1], bitter_values_group_1, bar_width, label='Bitter', alpha=0.7)
+ax1.bar([i + bar_width * 4 for i in index_group_1], sweet_values_group_1, bar_width, label='Sweet', alpha=0.7)
+ax1.bar([i + bar_width * 5 for i in index_group_1], spicy_values_group_1, bar_width, label='Spicy', alpha=0.7)
+
+ax1.set_xlabel('Name')
+ax1.set_ylabel('Values')
+ax1.set_title('Flavor Profile of Group 1')
+ax1.set_xticks([i + bar_width * 2.5 for i in index_group_1])  # x축의 중앙에 이름 배치
+ax1.set_xticklabels(names_group_1, rotation=45, ha="right")
+ax1.legend()
+
+# 두 번째 그룹 시각화
+bar_width = 0.15
+index_group_2 = range(len(names_group_2))
+
+ax2.bar(index_group_2, salty_values_group_2, bar_width, label='Salty', alpha=0.7)
+ax2.bar([i + bar_width for i in index_group_2], savory_values_group_2, bar_width, label='Savory', alpha=0.7)
+ax2.bar([i + bar_width * 2 for i in index_group_2], sour_values_group_2, bar_width, label='Sour', alpha=0.7)
+ax2.bar([i + bar_width * 3 for i in index_group_2], bitter_values_group_2, bar_width, label='Bitter', alpha=0.7)
+ax2.bar([i + bar_width * 4 for i in index_group_2], sweet_values_group_2, bar_width, label='Sweet', alpha=0.7)
+ax2.bar([i + bar_width * 5 for i in index_group_2], spicy_values_group_2, bar_width, label='Spicy', alpha=0.7)
+
+ax2.set_xlabel('Name')
+ax2.set_ylabel('Values')
+ax2.set_title('Flavor Profile of Group 2')
+ax2.set_xticks([i + bar_width * 2.5 for i in index_group_2])  # x축의 중앙에 이름 배치
+ax2.set_xticklabels(names_group_2, rotation=45, ha="right")
+ax2.legend()
+
+# 그래프 간격을 조정하고 표시
+plt.tight_layout()
+plt.show()
+
+
+
+
+
+
+# 결과 출력
+print("Alcoholic Drinks by Category:", category_count_alcoholic)
+print("Non-Alcoholic Drinks by Category:", category_count_non_alcoholic)
+
+# 시각화
+categories = list(alcohol_categories.keys())
+alcoholic_counts = list(category_count_alcoholic.values())
+non_alcoholic_counts = list(category_count_non_alcoholic.values())
+
+x = range(len(categories))
+
+# 바 차트 그리기
+fig, ax = plt.subplots(figsize=(10, 6))
+
+bar_width = 0.35
+ax.bar(x, alcoholic_counts, width=bar_width, label='Alcoholic', color='blue')
+ax.bar([i + bar_width for i in x], non_alcoholic_counts, width=bar_width, label='Non-Alcoholic', color='green')
+ax.set_xlabel('Alcohol Category')
+ax.set_ylabel('Number of Drinks')
+ax.set_title('Alcoholic vs Non-Alcoholic Drinks by Category')
+ax.set_xticks([i + bar_width / 2 for i in x])
+ax.set_xticklabels(categories, rotation=45, ha='right')
+ax.legend()
+
+plt.show()
